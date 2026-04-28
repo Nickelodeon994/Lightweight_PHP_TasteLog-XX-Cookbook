@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<!--
+  轻量食谱分享社区 - 前端
+
+  @version 0.0.1
+  @build   2026-04-28
+  @author  Nickelodeon994
+  @link    https://github.com/Nickelodeon994/Lightweight_PHP_TasteLog-XX-Cookbook
+  @license Apache-2.0
+
+  更新日志：
+  - 0.0.1 (2026-04-28) 初始版本
+    * 完整前端界面与交互
+    * 适配亮色/暗色主题（自动/手动切换）
+    * 移动端底部导航栏
+    * 与后端完全对接
+    * 帖子卡片、模态框、图片查看器
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>XX的食谱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+.icon-svg { width: 1em; height: 1em; vertical-align: middle; }
+.icon-svg-sm { width: 18px; height: 18px; vertical-align: middle; }
+.icon-svg-lg { width: 24px; height: 24px; vertical-align: middle; }
+
+:root {
+    --primary: #2ecc71;
+    --primary-dark: #27ae60;
+    --primary-light: #58d68d;
+    --bg-gradient-start: #e8f5e9;
+    --bg-gradient-end: #c8e6c9;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px rgba(46, 204, 113, 0.12);
+    --text-primary: #1a1a2e;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --radius: 20px;
+    --radius-sm: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --input-bg: rgba(255,255,255,0.6);
+    --input-focus-bg: rgba(255,255,255,0.9);
+    --btn-secondary-bg: rgba(255,255,255,0.6);
+    --btn-secondary-hover-bg: rgba(255,255,255,0.8);
+    --shadow-color: rgba(46, 204, 113, 0.12);
+    --shadow-hover-color: rgba(46, 204, 113, 0.18);
+    --danger-shadow-color: rgba(239, 68, 68, 0.3);
+    --border-light-color: rgba(46, 204, 113, 0.15);
+    --focus-shadow-color: rgba(46, 204, 113, 0.1);
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+[data-theme="dark"] {
+    --bg-gradient-start: #0f1419;
+    --bg-gradient-end: #1a2332;
+    --glass-bg: rgba(26, 35, 50, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --text-primary: #e8ecf0;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --input-bg: rgba(30, 41, 59, 0.8);
+    --input-focus-bg: rgba(30, 41, 59, 0.95);
+    --btn-secondary-bg: rgba(55, 65, 81, 0.6);
+    --btn-secondary-hover-bg: rgba(55, 65, 81, 0.8);
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --shadow-hover-color: rgba(0, 0, 0, 0.3);
+    --danger-shadow-color: rgba(239, 68, 68, 0.4);
+    --border-light-color: rgba(46, 204, 113, 0.25);
+    --focus-shadow-color: rgba(46, 204, 113, 0.2);
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius);
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px var(--shadow-hover-color);
+}
+
+.glass-btn {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.glass-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.glass-btn:active { transform: translateY(0); }
+
+.glass-btn.secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--text-primary);
+    box-shadow: var(--card-shadow);
+}
+
+.glass-btn.secondary:hover {
+    background: var(--btn-secondary-hover-bg);
+}
+
+.glass-btn.danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    box-shadow: 0 4px 15px var(--danger-shadow-color);
+}
+
+.glass-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--border-light-color);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    font-family: inherit;
+    font-size: 15px;
+    transition: var(--transition);
+    outline: none;
+    color: var(--text-primary);
+}
+
+.glass-input:focus {
+    border-color: var(--primary);
+    background: var(--input-focus-bg);
+    box-shadow: 0 0 0 4px var(--focus-shadow-color);
+}
+
+.glass-input::placeholder { color: var(--text-muted); }
+
+.top-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-logo {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 18px;
+}
+
+.nav-title {
+    font-size: 20px; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-center {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-tab {
+    padding: 8px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    border: none;
+    background: transparent;
+    font-family: inherit;
+}
+
+.nav-tab:hover { color: var(--primary); background: rgba(46, 204, 113, 0.08); }
+.nav-tab.active { color: var(--primary); background: rgba(46, 204, 113, 0.12); font-weight: 600; }
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.nav-user:hover { background: rgba(46, 204, 113, 0.08); }
+
+.nav-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-light);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; font-size: 16px;
+}
+
+.nav-username { font-weight: 600; font-size: 14px; }
+
+.mobile-top-actions {
+    display: none;
+    align-items: center;
+    gap: 16px;
+}
+
+.mobile-icon-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--primary);
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    transition: var(--transition);
+}
+
+.mobile-icon-btn:hover { background: rgba(46, 204, 113, 0.2); }
+
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--glass-border);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+
+.bottom-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.bottom-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+.bottom-tab .icon { font-size: 22px; line-height: 1; }
+.bottom-tab.active { color: var(--primary); }
+.bottom-tab.active .icon { transform: scale(1.1); }
+
+.desktop-search {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-trigger {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 20px rgba(46, 204, 113, 0.35);
+    transition: var(--transition);
+}
+
+.search-trigger:hover { transform: scale(1.05); }
+
+.search-bar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    padding: 6px 6px 6px 20px;
+    box-shadow: var(--glass-shadow);
+    animation: slideInLeft 0.3s ease;
+}
+
+.search-bar.active { display: flex; }
+
+.search-bar input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: inherit;
+    font-size: 15px;
+    width: 280px;
+    color: var(--text-primary);
+}
+
+.search-bar input::placeholder { color: var(--text-muted); }
+
+.search-submit {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: var(--transition);
+}
+
+.search-submit:hover { background: var(--primary-dark); }
+
+.main-content {
+    padding-top: 84px;
+    padding-bottom: 40px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.post-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(46, 204, 113, 0.15);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px 12px;
+}
+
+.post-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-light);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; font-size: 18px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.post-author-info { flex: 1; min-width: 0; }
+.post-author-name {
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.post-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.post-time {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.post-body {
+    padding: 0 20px 12px;
+}
+
+.post-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.post-title:hover { color: var(--primary-dark); }
+
+.post-content {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    word-break: break-word;
+}
+
+.post-content .expand-btn {
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 4px;
+}
+
+.post-media {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.post-media::-webkit-scrollbar { display: none; }
+
+.media-item {
+    flex-shrink: 0;
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    scroll-snap-align: start;
+    cursor: pointer;
+    position: relative;
+    background: rgba(0,0,0,0.05);
+}
+
+.media-item img, .media-item video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.media-item:hover img, .media-item:hover video { transform: scale(1.05); }
+
+.media-item.video::after {
+    content: '▶';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px; height: 48px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    backdrop-filter: blur(4px);
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-top: 1px solid rgba(46, 204, 113, 0.08);
+    gap: 8px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.action-btn:hover { background: rgba(46, 204, 113, 0.08); color: var(--primary); }
+.action-btn.active { color: var(--primary); background: rgba(46, 204, 113, 0.1); }
+.action-btn.active.like { color: var(--primary); }
+.action-btn.active.dislike { color: var(--danger); }
+.action-btn.active.favorite { color: var(--warning); }
+
+.action-btn .icon { font-size: 18px; }
+
+.fab {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 6px 24px rgba(46, 204, 113, 0.4);
+    transition: var(--transition);
+    z-index: 998;
+}
+
+.fab:hover { transform: scale(1.08) rotate(90deg); }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(46, 204, 113, 0.08);
+}
+
+.modal-title { font-size: 20px; font-weight: 700; }
+
+.modal-close {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.modal-close:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+.modal-body { padding: 20px 24px; }
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 16px 24px 20px;
+    border-top: 1px solid rgba(46, 204, 113, 0.08);
+}
+
+.media-preview {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.media-preview-item {
+    width: 100px; height: 100px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+    background: rgba(0,0,0,0.05);
+}
+
+.media-preview-item img, .media-preview-item video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+
+.media-preview-item .remove-media {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-upload-btn {
+    width: 100px; height: 100px;
+    border-radius: var(--radius-sm);
+    border: 2px dashed rgba(46, 204, 113, 0.3);
+    background: rgba(46, 204, 113, 0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 13px;
+    gap: 4px;
+    transition: var(--transition);
+}
+
+.media-upload-btn:hover {
+    border-color: var(--primary);
+    background: rgba(46, 204, 113, 0.08);
+}
+
+.media-upload-btn .icon { font-size: 24px; }
+
+.auth-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.auth-tab.active {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--primary);
+}
+
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.search-page-header {
+    margin-bottom: 24px;
+}
+
+.search-page-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.search-page-header p { color: var(--text-muted); }
+
+.mobile-search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.2s ease;
+}
+
+.mobile-search-overlay.active { display: flex; }
+
+.mobile-search-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.mobile-search-header input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 18px;
+    outline: none;
+    color: var(--text-primary);
+}
+
+.mobile-search-header input::placeholder { color: var(--text-muted); }
+
+.mobile-search-close {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-search-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+}
+
+.profile-header {
+    text-align: center;
+    padding: 32px 24px;
+    margin-bottom: 24px;
+}
+
+.profile-avatar-large {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-light);
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 40px;
+    margin: 0 auto 16px;
+    position: relative;
+}
+
+.profile-avatar-large .avatar-edit {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.profile-meta {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.profile-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(46, 204, 113, 0.1);
+    padding-bottom: 4px;
+}
+
+.profile-tab {
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    position: relative;
+}
+
+.profile-tab:hover { color: var(--primary); }
+.profile-tab.active {
+    color: var(--primary);
+    background: rgba(46, 204, 113, 0.08);
+}
+
+.checkin-header {
+    text-align: center;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.checkin-streak {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.checkin-label {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 8px;
+}
+
+.calendar-nav button {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.calendar-nav button:hover { background: rgba(46, 204, 113, 0.2); }
+
+.calendar-nav span {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 16px;
+}
+
+.calendar-weekday {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 8px 0;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    background: rgba(255,255,255,0.4);
+    border: 1px solid transparent;
+}
+
+.calendar-day:hover {
+    background: rgba(46, 204, 113, 0.1);
+    border-color: rgba(46, 204, 113, 0.2);
+}
+
+.calendar-day.other-month { color: var(--text-muted); opacity: 0.5; }
+.calendar-day.today {
+    border: 2px solid var(--primary);
+    font-weight: 700;
+}
+.calendar-day.checked {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+.calendar-day.checked:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.admin-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.admin-tab {
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: rgba(255,255,255,0.4);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.admin-tab:hover { background: rgba(46, 204, 113, 0.08); color: var(--primary); }
+.admin-tab.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.4);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 14px 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(46, 204, 113, 0.1);
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(46, 204, 113, 0.06);
+    white-space: nowrap;
+}
+
+.admin-table tr:hover td { background: rgba(46, 204, 113, 0.03); }
+
+.admin-table .actions {
+    display: flex;
+    gap: 6px;
+}
+
+.admin-table .actions button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.admin-table .actions .btn-edit {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--primary);
+}
+.admin-table .actions .btn-edit:hover { background: rgba(46, 204, 113, 0.2); }
+
+.admin-table .actions .btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+.admin-table .actions .btn-delete:hover { background: rgba(239, 68, 68, 0.2); }
+
+.empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+}
+
+.empty-state .icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.empty-state p { font-size: 14px; }
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(46, 204, 113, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 14px 20px;
+    box-shadow: var(--glass-shadow);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideInRight 0.3s ease;
+    max-width: 320px;
+}
+
+.toast.success { border-left: 4px solid var(--primary); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.warning { border-left: 4px solid var(--warning); }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: rgba(255,255,255,0.5);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.pagination button:hover:not(:disabled) {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--primary);
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination button.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.image-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.image-viewer.active { display: flex; }
+
+.image-viewer img, .image-viewer video {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: var(--radius-sm);
+    object-fit: contain;
+}
+
+.image-viewer-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.image-viewer-close:hover { background: rgba(255,255,255,0.25); }
+
+.report-reason {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px 18px;
+    border: 2px solid rgba(46, 204, 113, 0.15);
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.6);
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+    outline: none;
+    transition: var(--transition);
+    color: var(--text-primary);
+}
+
+.report-reason:focus {
+    border-color: var(--primary);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 1023px) {
+    .nav-center { display: none; }
+    .nav-right .nav-user { display: none; }
+    .nav-right .nav-login-btn { display: none; }
+    .mobile-top-actions { display: flex; }
+    .bottom-nav { display: block; }
+    .desktop-search { display: none; }
+    .fab { bottom: 80px; right: 16px; }
+    .main-content {
+        padding-top: 80px;
+        padding-bottom: 100px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .post-card { border-radius: var(--radius-sm); }
+    .media-item { width: 160px; height: 160px; }
+    .modal { max-height: 85vh; }
+    .admin-tabs { gap: 6px; }
+    .admin-tab { padding: 8px 14px; font-size: 13px; }
+    .profile-stats { gap: 20px; }
+    .stat-value { font-size: 20px; }
+    .calendar-grid { gap: 4px; padding: 12px; }
+    .calendar-day { font-size: 13px; }
+}
+
+@media (min-width: 1024px) {
+    .mobile-top-actions { display: none !important; }
+    .bottom-nav { display: none !important; }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="nav-left">
+        <div class="nav-logo" id="siteIcon"><i data-lucide="chef-hat"></i></div>
+        <span class="nav-title" id="siteTitle">XX的食谱</span>
+    </div>
+    <div class="nav-center" id="navCenter">
+        <button class="nav-tab active" data-page="explore">探索</button>
+        <button class="nav-tab" data-page="follow">关注</button>
+        <button class="nav-tab" data-page="favorite">收藏</button>
+        <button class="nav-tab" data-page="checkin">打卡</button>
+    </div>
+    <div class="nav-right" id="navRight">
+        <button class="glass-btn" id="navLoginBtn" onclick="showAuthModal()">登录</button>
+        <div class="nav-user hidden" id="navUser" onclick="navigateTo('profile')">
+            <div class="nav-avatar" id="navAvatar"></div>
+            <span class="nav-username" id="navUsername"></span>
+        </div>
+    </div>
+    <div class="mobile-top-actions">
+        <button class="mobile-icon-btn" onclick="showMobileSearch()"><i data-lucide="search"></i></button>
+        <button class="mobile-icon-btn" onclick="navigateTo('checkin')"><i data-lucide="calendar"></i></button>
+    </div>
+</nav>
+
+<nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+        <button class="bottom-tab active" data-page="explore">
+            <span class="icon"><i data-lucide="home"></i></span>
+            <span>探索</span>
+        </button>
+        <button class="bottom-tab" data-page="follow">
+            <span class="icon"><i data-lucide="users"></i></span>
+            <span>关注</span>
+        </button>
+        <button class="bottom-tab" data-page="favorite">
+            <span class="icon"><i data-lucide="star"></i></span>
+            <span>收藏</span>
+        </button>
+        <button class="bottom-tab" data-page="profile">
+            <span class="icon"><i data-lucide="user"></i></span>
+            <span>我的</span>
+        </button>
+    </div>
+</nav>
+
+<div class="desktop-search">
+    <button class="search-trigger" id="searchTrigger" onclick="toggleSearchBar()"><i data-lucide="search"></i></button>
+    <div class="search-bar" id="searchBar">
+        <input type="text" id="searchInput" placeholder="搜索食谱..." onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="search-submit" onclick="doSearch()"><i data-lucide="arrow-right"></i></button>
+    </div>
+</div>
+
+<button class="fab" id="fabBtn" onclick="showCreatePostModal()"><i data-lucide="plus"></i></button>
+
+<main class="main-content" id="mainContent">
+</main>
+
+<div class="modal-overlay" id="authModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">欢迎加入</span>
+            <button class="modal-close" onclick="closeAuthModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">登录</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">注册</button>
+            </div>
+            <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" class="glass-input" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="glass-input" name="password" placeholder="至少6位密码" required>
+                </div>
+                <button type="submit" class="glass-btn" style="width:100%">登录</button>
+            </form>
+            <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" class="glass-input" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>昵称</label>
+                    <input type="text" class="glass-input" name="username" placeholder="2-20个字符" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="glass-input" name="password" placeholder="至少6位密码" required>
+                </div>
+                <button type="submit" class="glass-btn" style="width:100%">注册</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="createPostModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">发布新食谱</span>
+            <button class="modal-close" onclick="closeCreatePostModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" class="glass-input" id="postTitle" placeholder="给你的食谱起个名字" maxlength="200">
+            </div>
+            <div class="form-group">
+                <label>正文</label>
+                <textarea class="glass-input" id="postContent" placeholder="分享你的此刻..." rows="6" style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>图片/视频（最多9个）</label>
+                <div class="media-preview" id="mediaPreview">
+                    <div class="media-upload-btn" onclick="document.getElementById('mediaInput').click()">
+                        <span class="icon"><i data-lucide="camera"></i></span>
+                        <span>添加</span>
+                    </div>
+                </div>
+                <input type="file" id="mediaInput" multiple accept="image/*,video/*" style="display:none" onchange="handleMediaSelect(event)">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="glass-btn secondary" onclick="closeCreatePostModal()">取消</button>
+            <button class="glass-btn" onclick="submitPost()">发布</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="reportModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">举报帖子</span>
+            <button class="modal-close" onclick="closeReportModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>举报原因</label>
+                <textarea class="report-reason" id="reportReason" placeholder="请描述举报原因..." required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="glass-btn secondary" onclick="closeReportModal()">取消</button>
+            <button class="glass-btn danger" onclick="submitReport()">提交举报</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="editPostModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">编辑帖子</span>
+            <button class="modal-close" onclick="closeEditPostModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" class="glass-input" id="editPostTitle" placeholder="给你的食谱起个名字" maxlength="200">
+            </div>
+            <div class="form-group">
+                <label>正文</label>
+                <textarea class="glass-input" id="editPostContent" placeholder="分享你的烹饪心得..." rows="6" style="resize:vertical;"></textarea>
+            </div>
+            <input type="hidden" id="editPostId">
+        </div>
+        <div class="modal-footer">
+            <button class="glass-btn danger" onclick="deleteMyPost()">删除帖子</button>
+            <button class="glass-btn secondary" onclick="closeEditPostModal()">取消</button>
+            <button class="glass-btn" onclick="submitEditPost()">保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay">
+    <div class="mobile-search-header">
+        <input type="text" id="mobileSearchInput" placeholder="搜索食谱、食材..." onkeydown="if(event.key==='Enter')doMobileSearch()">
+        <button class="mobile-search-close" onclick="closeMobileSearch()">×</button>
+    </div>
+    <div class="mobile-search-body" id="mobileSearchBody">
+    </div>
+</div>
+
+<div class="image-viewer" id="imageViewer" onclick="closeImageViewer()">
+    <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
+    <img id="viewerImage" src="" alt="">
+    <video id="viewerVideo" controls style="display:none;"></video>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API_BASE = 'api.php?action=';
+const MAX_MEDIA_PER_POST = 9;
+let currentUser = null;
+let currentPage = 'explore';
+let currentPageNum = 1;
+let currentViewUid = null;
+let selectedMediaFiles = [];
+let currentReportPostId = '';
+let calendarCurrentDate = new Date();
+let profileCurrentTab = 'posts';
+let adminCurrentTab = 'users';
+let isSearchBarOpen = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+});
+
+async function initApp() {
+    await checkLogin();
+    await loadSettings();
+    setupNavigation();
+    setupHashRouter();
+    lucide.createIcons();
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        applyTheme();
+    });
+    
+    const hash = window.location.hash.replace('#', '') || 'explore';
+    navigateTo(hash);
+}
+
+async function api(action, params = {}, method = 'GET') {
+    const url = API_BASE + action;
+    const options = { method };
+    
+    if (method === 'POST') {
+        if (params instanceof FormData) {
+            options.body = params;
+        } else {
+            options.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+            options.body = new URLSearchParams(params).toString();
+        }
+    } else {
+        if (Object.keys(params).length > 0) {
+            options.method = 'GET';
+        }
+    }
+    
+    const fullUrl = method === 'GET' && Object.keys(params).length > 0 
+        ? url + '&' + new URLSearchParams(params).toString()
+        : url;
+    
+    try {
+        const res = await fetch(fullUrl, options);
+        const data = await res.json();
+        return data;
+    } catch (err) {
+        showToast('网络错误，请稍后重试', 'error');
+        throw err;
+    }
+}
+
+async function loadSettings() {
+    const data = await api('getSettings');
+    if (data.success) {
+        document.getElementById('siteTitle').textContent = data.site_title || 'XX的食谱';
+        document.title = data.site_title || 'XX的食谱';
+        if (data.site_icon) {
+            document.getElementById('siteIcon').innerHTML = `<img src="${data.site_icon}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+        }
+        applyTheme();
+    }
+}
+
+function applyTheme() {
+    api('getSettings').then(settings => {
+        if (!settings.success) return;
+        const mode = settings.theme_mode || 'auto';
+        if (mode === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (mode === 'light') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }
+    });
+}
+
+async function checkLogin() {
+    const data = await api('getMe');
+    if (data.success && data.logged_in) {
+        currentUser = {
+            uid: data.uid,
+            username: data.username,
+            avatar: data.avatar,
+            role: data.role
+        };
+        updateNavUser();
+    } else {
+        currentUser = null;
+        updateNavUser();
+    }
+}
+
+function updateNavUser() {
+    const loginBtn = document.getElementById('navLoginBtn');
+    const navUser = document.getElementById('navUser');
+    const navAvatar = document.getElementById('navAvatar');
+    const navUsername = document.getElementById('navUsername');
+    
+    if (currentUser) {
+        loginBtn.classList.add('hidden');
+        navUser.classList.remove('hidden');
+        navUsername.textContent = currentUser.username;
+        if (currentUser.avatar) {
+            navAvatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        } else {
+            navAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+        }
+    } else {
+        loginBtn.classList.remove('hidden');
+        navUser.classList.add('hidden');
+    }
+}
+
+function setupNavigation() {
+    document.querySelectorAll('.nav-tab, .bottom-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const page = tab.dataset.page;
+            if (page) navigateTo(page);
+        });
+    });
+}
+
+function setupHashRouter() {
+    window.addEventListener('hashchange', () => {
+        const hash = window.location.hash.replace('#', '') || 'explore';
+        navigateTo(hash, false);
+    });
+}
+
+function navigateTo(page, updateHash = true) {
+    if (updateHash) {
+        window.location.hash = page;
+    }
+    
+    currentPage = page;
+    currentPageNum = 1;
+    
+    document.querySelectorAll('.nav-tab, .bottom-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.page === page);
+    });
+    
+    const main = document.getElementById('mainContent');
+    main.innerHTML = '';
+    
+    switch (page) {
+        case 'explore': renderExplorePage(main); break;
+        case 'follow': renderFollowPage(main); break;
+        case 'favorite': renderFavoritePage(main); break;
+        case 'checkin': renderCheckinPage(main); break;
+        case 'profile': renderProfilePage(main); break;
+        case 'admin': renderAdminPage(main); break;
+        default:
+            if (page === 'search' || page.startsWith('search?')) {
+                renderSearchPage(main);
+            } else if (page.startsWith('post/')) {
+                const postId = page.replace('post/', '');
+                renderPostDetailPage(main, postId);
+            } else if (page.startsWith('user/')) {
+                const uid = page.replace('user/', '');
+                renderUserProfilePage(main, uid);
+            } else {
+                renderExplorePage(main);
+            }
+    }
+    
+    window.scrollTo(0, 0);
+    lucide.createIcons();
+}
+
+async function renderExplorePage(container) {
+    if (!currentUser) {
+        const settings = await api('getSettings');
+        if (settings.success && !settings.allow_guest_browse) {
+            container.innerHTML = renderEmptyState('🔒', '请先登录', '登录后即可浏览帖子');
+            return;
+        }
+    }
+    container.innerHTML = `
+        <div id="explorePosts"></div>
+        <div id="explorePagination"></div>
+    `;
+    loadPosts('explore', 'explorePosts', 'explorePagination');
+}
+
+function renderFollowPage(container) {
+    if (!currentUser) {
+        container.innerHTML = renderEmptyState('🔒', '请先登录', '登录后即可查看关注用户的动态');
+        return;
+    }
+    container.innerHTML = `
+        <div id="followPosts"></div>
+        <div id="followPagination"></div>
+    `;
+    loadPosts('follow', 'followPosts', 'followPagination');
+}
+
+function renderFavoritePage(container) {
+    if (!currentUser) {
+        container.innerHTML = renderEmptyState('🔒', '请先登录', '登录后即可查看收藏内容');
+        return;
+    }
+    container.innerHTML = `
+        <div id="favoritePosts"></div>
+        <div id="favoritePagination"></div>
+    `;
+    loadPosts('favorite', 'favoritePosts', 'favoritePagination');
+}
+
+async function loadPosts(type, containerId, paginationId, keyword = '', uid = null) {
+    const container = document.getElementById(containerId);
+    const pagination = document.getElementById(paginationId);
+    
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    const params = { type, page: currentPageNum, limit: 10 };
+    if (keyword) params.keyword = keyword;
+    if (uid) params.uid = uid;
+    
+    try {
+        const data = await api('getPosts', params);
+        if (!data.success) {
+            container.innerHTML = renderEmptyState('😕', '加载失败', data.message);
+            return;
+        }
+        
+        if (data.posts.length === 0) {
+            const emptyMsgs = {
+                explore: ['<i data-lucide="chef-hat"></i>', '还没有食谱', '成为第一个分享美食的人吧！'],
+                follow: ['<i data-lucide="users"></i>', '暂无动态', '关注更多用户，发现精彩食谱'],
+                favorite: ['<i data-lucide="star"></i>', '暂无收藏', '看到喜欢的食谱就收藏起来吧'],
+                search: ['<i data-lucide="search"></i>', '未找到结果', '换个关键词试试'],
+                user_posts: ['<i data-lucide="file-text"></i>', '暂无帖子', '该用户还没有发布过内容']
+            };
+            const [icon, title, desc] = emptyMsgs[type] || ['<i data-lucide="inbox"></i>', '暂无内容', ''];
+            container.innerHTML = renderEmptyState(icon, title, desc);
+            lucide.createIcons();
+            if (pagination) pagination.innerHTML = '';
+            return;
+        }
+        
+        container.innerHTML = data.posts.map(post => renderPostCard(post)).join('');
+        lucide.createIcons();
+        
+        if (pagination) {
+            pagination.innerHTML = renderPagination(data.total, data.page, data.limit, () => {
+                currentPageNum++;
+                loadPosts(type, containerId, paginationId, keyword, uid);
+            }, () => {
+                currentPageNum--;
+                loadPosts(type, containerId, paginationId, keyword, uid);
+            });
+        }
+    } catch (e) {
+        container.innerHTML = renderEmptyState('😕', '加载失败', '请检查网络连接');
+    }
+}
+
+function renderPostCard(post) {
+    const author = post.author || {};
+    const avatarHtml = author.avatar
+        ? `<img src="${author.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : (author.username || 'U').charAt(0).toUpperCase();
+    
+    const badgeHtml = author.badge ? `<span class="post-badge">${escapeHtml(author.badge)}</span>` : '';
+    
+    let contentHtml = escapeHtml(post.content || '');
+    const isLong = contentHtml.length > 200;
+    if (isLong) {
+        contentHtml = `<span class="content-short">${contentHtml.substring(0, 200)}...</span><span class="content-full hidden">${contentHtml}</span><span class="expand-btn" onclick="toggleContent(this)">查看全文</span>`;
+    }
+    
+    const mediaHtml = (post.media || []).map((m, i) => {
+        if (m.type === 'video') {
+            return `<div class="media-item video" onclick="openImageViewer('${m.url}', 'video')"><video src="${m.url}" preload="metadata"></video></div>`;
+        }
+        return `<div class="media-item" onclick="openImageViewer('${m.url}', 'image')"><img src="${m.thumb || m.url}" alt=""></div>`;
+    }).join('');
+    
+    const timeStr = formatTime(post.created_at);
+    const isOwner = currentUser && currentUser.uid == post.uid;
+    
+    return `
+        <div class="post-card">
+            <div class="post-header">
+                <div class="post-avatar" onclick="navigateTo('user/${post.uid}')">${avatarHtml}</div>
+                <div class="post-author-info">
+                    <div class="post-author-name">${escapeHtml(author.username || '未知用户')}${badgeHtml}</div>
+                    <div class="post-time">${timeStr}</div>
+                </div>
+            </div>
+            <div class="post-body">
+                <div class="post-title" onclick="navigateTo('post/${post.id}')">${escapeHtml(post.title || '')}</div>
+                <div class="post-content">${contentHtml}</div>
+            </div>
+            ${mediaHtml ? `<div class="post-media">${mediaHtml}</div>` : ''}
+            <div class="post-actions">
+                <button class="action-btn ${post.user_reaction === 'like' ? 'active like' : ''}" onclick="handleReact('${post.id}', 'like', this)">
+                    <span class="icon"><i data-lucide="thumbs-up"></i></span>
+                    <span class="count">${post.likes || 0}</span>
+                </button>
+                <button class="action-btn ${post.user_reaction === 'dislike' ? 'active dislike' : ''}" onclick="handleReact('${post.id}', 'dislike', this)">
+                    <span class="icon"><i data-lucide="thumbs-down"></i></span>
+                    <span class="count">${post.dislikes || 0}</span>
+                </button>
+                <button class="action-btn ${post.is_favorite ? 'active favorite' : ''}" onclick="handleFavorite('${post.id}', this)">
+                    <span class="icon"><i data-lucide="star"></i></span>
+                    <span class="count">${post.favorites || 0}</span>
+                </button>
+                ${isOwner ? `<button class="action-btn" onclick="showEditPostModal('${post.id}')"><span class="icon"><i data-lucide="edit-3"></i></span></button>` : ''}
+                <button class="action-btn" onclick="showReportModal('${post.id}')">
+                    <span class="icon"><i data-lucide="flag"></i></span>
+                    <span>举报</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function toggleContent(btn) {
+    const card = btn.closest('.post-content');
+    const short = card.querySelector('.content-short');
+    const full = card.querySelector('.content-full');
+    if (short.classList.contains('hidden')) {
+        short.classList.remove('hidden');
+        full.classList.add('hidden');
+        btn.textContent = '查看全文';
+    } else {
+        short.classList.add('hidden');
+        full.classList.remove('hidden');
+        btn.textContent = '收起';
+    }
+}
+
+async function renderPostDetailPage(container, postId) {
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    try {
+        const data = await api('getPostDetail', { postId });
+        if (!data.success) {
+            container.innerHTML = renderEmptyState('<i data-lucide="file-x"></i>', '帖子不存在', '该内容可能已被删除');
+            lucide.createIcons();
+            return;
+        }
+        
+        const post = data.post;
+        const author = post.author || {};
+        const avatarHtml = author.avatar
+            ? `<img src="${author.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+            : (author.username || 'U').charAt(0).toUpperCase();
+        const badgeHtml = author.badge ? `<span class="post-badge">${escapeHtml(author.badge)}</span>` : '';
+        
+        const mediaHtml = (post.media || []).map(m => {
+            if (m.type === 'video') {
+                return `<div class="media-item video" style="width:100%;height:auto;aspect-ratio:16/9;" onclick="openImageViewer('${m.url}', 'video')"><video src="${m.url}" preload="metadata"></video></div>`;
+            }
+            return `<div class="media-item" style="width:100%;height:auto;aspect-ratio:1;" onclick="openImageViewer('${m.url}', 'image')"><img src="${m.url}" alt=""></div>`;
+        }).join('');
+        
+        const isOwner = currentUser && currentUser.uid == post.uid;
+        
+        container.innerHTML = `
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-avatar" onclick="navigateTo('user/${post.uid}')">${avatarHtml}</div>
+                    <div class="post-author-info">
+                        <div class="post-author-name">${escapeHtml(author.username || '未知用户')}${badgeHtml}</div>
+                        <div class="post-time">${formatTime(post.created_at)}</div>
+                    </div>
+                </div>
+                <div class="post-body">
+                    <div class="post-title">${escapeHtml(post.title || '')}</div>
+                    <div class="post-content">${escapeHtml(post.content || '').replace(/\n/g, '<br>')}</div>
+                </div>
+                ${mediaHtml ? `<div class="post-media" style="flex-wrap:wrap;">${mediaHtml}</div>` : ''}
+                <div class="post-actions">
+                    <button class="action-btn ${post.user_reaction === 'like' ? 'active like' : ''}" onclick="handleReact('${post.id}', 'like', this)">
+                        <span class="icon"><i data-lucide="thumbs-up"></i></span>
+                        <span class="count">${post.likes || 0}</span>
+                    </button>
+                    <button class="action-btn ${post.user_reaction === 'dislike' ? 'active dislike' : ''}" onclick="handleReact('${post.id}', 'dislike', this)">
+                        <span class="icon"><i data-lucide="thumbs-down"></i></span>
+                        <span class="count">${post.dislikes || 0}</span>
+                    </button>
+                    <button class="action-btn ${post.is_favorite ? 'active favorite' : ''}" onclick="handleFavorite('${post.id}', this)">
+                        <span class="icon"><i data-lucide="star"></i></span>
+                        <span class="count">${post.favorites || 0}</span>
+                    </button>
+                    ${isOwner ? `<button class="action-btn" onclick="showEditPostModal('${post.id}')"><span class="icon"><i data-lucide="edit-3"></i></span><span>编辑</span></button>` : ''}
+                    <button class="action-btn" onclick="showReportModal('${post.id}')">
+                        <span class="icon"><i data-lucide="flag"></i></span>
+                        <span>举报</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        if (currentUser) {
+            api('browseHistory', { postId }, 'POST').catch(() => {});
+        }
+        lucide.createIcons();
+    } catch (e) {
+        container.innerHTML = renderEmptyState('<i data-lucide="alert-circle"></i>', '加载失败', '请检查网络连接');
+        lucide.createIcons();
+    }
+}
+
+async function renderUserProfilePage(container, uid) {
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    try {
+        const data = await api('getProfile', { uid });
+        if (!data.success) {
+            container.innerHTML = renderEmptyState('<i data-lucide="user-x"></i>', '用户不存在', '');
+            return;
+        }
+        
+        const profile = data.profile;
+        const isSelf = currentUser && currentUser.uid == uid;
+        
+        const avatarHtml = profile.avatar
+            ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+            : (profile.username || 'U').charAt(0).toUpperCase();
+        
+        const followBtn = !isSelf && currentUser
+            ? `<button class="glass-btn ${profile.is_following ? 'secondary' : ''}" style="margin-top:12px;" onclick="handleFollow(${uid}, this)">${profile.is_following ? '已关注' : '+ 关注'}</button>`
+            : '';
+        
+        container.innerHTML = `
+            <div class="glass-card profile-header">
+                <div class="profile-avatar-large">${avatarHtml}</div>
+                <div class="profile-name">${escapeHtml(profile.username)} ${profile.badge ? `<span class="post-badge">${escapeHtml(profile.badge)}</span>` : ''}</div>
+                <div class="profile-meta">UID: ${profile.uid} · 注册于 ${profile.reg_time ? profile.reg_time.split(' ')[0] : ''}</div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.post_count || 0}</div>
+                        <div class="stat-label">帖子</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.follower_count || 0}</div>
+                        <div class="stat-label">粉丝</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.following_count || 0}</div>
+                        <div class="stat-label">关注</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.continuous_days || 0}</div>
+                        <div class="stat-label">连续打卡</div>
+                    </div>
+                </div>
+                ${followBtn}
+            </div>
+            <div id="userPosts"></div>
+            <div id="userPagination"></div>
+        `;
+        
+        currentViewUid = uid;
+        currentPageNum = 1;
+        loadPosts('user_posts', 'userPosts', 'userPagination', '', uid);
+    } catch (e) {
+        container.innerHTML = renderEmptyState('😕', '加载失败', '');
+    }
+}
+
+async function renderProfilePage(container) {
+    if (!currentUser) {
+        container.innerHTML = renderEmptyState('🔒', '请先登录', '登录后查看个人中心');
+        return;
+    }
+    
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    try {
+        const data = await api('getProfile');
+        if (!data.success) {
+            container.innerHTML = renderEmptyState('😕', '加载失败', '');
+            return;
+        }
+        
+        const profile = data.profile;
+        const avatarHtml = profile.avatar
+            ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+            : (profile.username || 'U').charAt(0).toUpperCase();
+        
+        const adminLink = profile.role === 'admin'
+            ? `<button class="glass-btn secondary" style="margin-top:12px;" onclick="navigateTo('admin')">⚙️ 后台管理</button>`
+            : '';
+        
+        container.innerHTML = `
+            <div class="glass-card profile-header">
+                <div class="profile-avatar-large" style="cursor:pointer;" onclick="document.getElementById('avatarInput').click()">
+                    ${avatarHtml}
+                    <div class="avatar-edit">📷</div>
+                </div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+                <div class="profile-name">
+                    <span id="profileNameDisplay">${escapeHtml(profile.username)}</span>
+                    ${profile.badge ? `<span class="post-badge">${escapeHtml(profile.badge)}</span>` : ''}
+                    <button class="mobile-icon-btn" style="width:28px;height:28px;font-size:14px;" onclick="showEditProfileModal()">✏️</button>
+                </div>
+                <div class="profile-meta">UID: ${profile.uid} · 注册于 ${profile.reg_time ? profile.reg_time.split(' ')[0] : ''}</div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.post_count || 0}</div>
+                        <div class="stat-label">帖子</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.follower_count || 0}</div>
+                        <div class="stat-label">粉丝</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.following_count || 0}</div>
+                        <div class="stat-label">关注</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${profile.continuous_days || 0}</div>
+                        <div class="stat-label">连续打卡</div>
+                    </div>
+                </div>
+                ${adminLink}
+                <button class="glass-btn secondary" style="margin-top:8px;" onclick="handleLogout()">退出登录</button>
+            </div>
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchProfileTab('posts', this)">我的帖子</button>
+                <button class="profile-tab" onclick="switchProfileTab('liked', this)">喜欢</button>
+                <button class="profile-tab" onclick="switchProfileTab('following', this)">关注</button>
+                <button class="profile-tab" onclick="switchProfileTab('history', this)">最近浏览</button>
+            </div>
+            <div id="profileContent"></div>
+            <div id="profilePagination"></div>
+        `;
+        
+        profileCurrentTab = 'posts';
+        currentPageNum = 1;
+        loadProfileContent();
+    } catch (e) {
+        container.innerHTML = renderEmptyState('😕', '加载失败', '');
+    }
+}
+
+async function loadProfileContent() {
+    const container = document.getElementById('profileContent');
+    const pagination = document.getElementById('profilePagination');
+    
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    if (profileCurrentTab === 'history') {
+        try {
+            const data = await api('getBrowseHistory');
+            if (!data.success || !data.posts || data.posts.length === 0) {
+                container.innerHTML = renderEmptyState('<i data-lucide="book-open"></i>', '暂无浏览记录', '');
+                pagination.innerHTML = '';
+                return;
+            }
+            container.innerHTML = data.posts.map(post => renderPostCard(post)).join('');
+            lucide.createIcons();
+            pagination.innerHTML = '';
+        } catch (e) {
+            container.innerHTML = renderEmptyState('😕', '加载失败', '');
+        }
+        return;
+    }
+    
+    const typeMap = { posts: 'user_posts', liked: 'liked', following: 'following' };
+    const type = typeMap[profileCurrentTab] || 'user_posts';
+    
+    if (profileCurrentTab === 'following') {
+        try {
+            const data = await api('getUserPosts', { uid: currentUser.uid, type: 'following', page: currentPageNum, limit: 10 });
+            if (!data.success || !data.posts || data.posts.length === 0) {
+                container.innerHTML = renderEmptyState('<i data-lucide="users"></i>', '暂无关注', '去发现有趣的用户吧');
+                pagination.innerHTML = '';
+                return;
+            }
+            const filteredUsers = data.posts.filter(u => u.uid !== currentUser.uid);
+            if (filteredUsers.length === 0) {
+                container.innerHTML = renderEmptyState('<i data-lucide="users"></i>', '暂无关注', '去发现有趣的用户吧');
+                pagination.innerHTML = '';
+                return;
+            }
+            container.innerHTML = filteredUsers.map(u => `
+                <div class="post-card" style="display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer;" onclick="navigateTo('user/${u.uid}')">
+                    <div class="post-avatar">${u.avatar ? `<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (u.username || 'U').charAt(0).toUpperCase()}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;">${escapeHtml(u.username)} ${u.badge ? `<span class="post-badge">${escapeHtml(u.badge)}</span>` : ''}</div>
+                        <div style="font-size:13px;color:var(--text-muted);">UID: ${u.uid}</div>
+                    </div>
+                    <button class="glass-btn secondary" style="padding:8px 16px;font-size:13px;" onclick="event.stopPropagation();handleFollow(${u.uid}, this)">已关注</button>
+                </div>
+            `).join('');
+            pagination.innerHTML = renderPagination(data.total, data.page, data.limit, () => {
+                currentPageNum++;
+                loadProfileContent();
+            }, () => {
+                currentPageNum--;
+                loadProfileContent();
+            });
+        } catch (e) {
+            container.innerHTML = renderEmptyState('😕', '加载失败', '');
+        }
+        return;
+    }
+    
+    if (profileCurrentTab === 'liked') {
+        loadPosts('liked', 'profileContent', 'profilePagination');
+        return;
+    }
+    
+    loadPosts(type, 'profileContent', 'profilePagination', '', currentUser.uid);
+}
+
+function switchProfileTab(tab, btn) {
+    profileCurrentTab = tab;
+    currentPageNum = 1;
+    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    loadProfileContent();
+}
+
+async function renderCheckinPage(container) {
+    if (!currentUser) {
+        container.innerHTML = renderEmptyState('🔒', '请先登录', '登录后查看打卡记录');
+        return;
+    }
+    
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    try {
+        const data = await api('getCheckinCalendar');
+        if (!data.success) {
+            container.innerHTML = renderEmptyState('😕', '加载失败', '');
+            return;
+        }
+        
+        const dates = data.dates || [];
+        const continuous = data.continuous_days || 0;
+        
+        container.innerHTML = `
+            <div class="glass-card checkin-header">
+                <div class="checkin-streak">${continuous}</div>
+                <div class="checkin-label">连续打卡天数</div>
+            </div>
+            <div class="glass-card">
+                <div class="calendar-nav">
+                    <button onclick="changeCalendarMonth(-1)">‹</button>
+                    <span id="calendarMonthLabel"></span>
+                    <button onclick="changeCalendarMonth(1)">›</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+        `;
+        
+        renderCalendar(dates);
+    } catch (e) {
+        container.innerHTML = renderEmptyState('😕', '加载失败', '');
+    }
+}
+
+function renderCalendar(dates) {
+    const year = calendarCurrentDate.getFullYear();
+    const month = calendarCurrentDate.getMonth();
+    document.getElementById('calendarMonthLabel').textContent = `${year}年${month + 1}月`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
+    
+    const prevLastDay = new Date(year, month, 0).getDate();
+    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    
+    let html = weekdays.map(d => `<div class="calendar-weekday">${d}</div>`).join('');
+    
+    for (let i = startDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevLastDay - i}</div>`;
+    }
+    
+    const today = new Date();
+    const dateStrs = dates.map(d => d);
+    
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
+        const isChecked = dateStrs.includes(dateStr);
+        
+        let classes = 'calendar-day';
+        if (isToday) classes += ' today';
+        if (isChecked) classes += ' checked';
+        
+        html += `<div class="${classes}" data-date="${dateStr}">${d}</div>`;
+    }
+    
+    const remaining = (7 - ((startDay + daysInMonth) % 7)) % 7;
+    for (let d = 1; d <= remaining; d++) {
+        html += `<div class="calendar-day other-month">${d}</div>`;
+    }
+    
+    document.getElementById('calendarGrid').innerHTML = html;
+}
+
+function changeCalendarMonth(delta) {
+    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + delta);
+    renderCheckinPage(document.getElementById('mainContent'));
+}
+
+function renderSearchPage(container) {
+    const hash = window.location.hash;
+    const queryStart = hash.indexOf('?');
+    const keyword = queryStart !== -1 ? new URLSearchParams(hash.substring(queryStart)).get('q') || '' : '';
+    container.innerHTML = `
+        <div class="search-page-header">
+            <h2>搜索结果</h2>
+            <p>关键词: "${escapeHtml(keyword)}"</p>
+        </div>
+        <div id="searchPosts"></div>
+        <div id="searchPagination"></div>
+    `;
+    
+    if (keyword) {
+        currentPageNum = 1;
+        loadPosts('search', 'searchPosts', 'searchPagination', keyword);
+    } else {
+        document.getElementById('searchPosts').innerHTML = renderEmptyState('🔍', '请输入搜索关键词', '');
+    }
+}
+
+async function renderAdminPage(container) {
+    if (!currentUser || currentUser.role !== 'admin') {
+        container.innerHTML = renderEmptyState('🚫', '权限不足', '仅管理员可访问');
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="admin-header">
+            <h2>后台管理</h2>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('users', this)">用户管理</button>
+            <button class="admin-tab" onclick="switchAdminTab('posts', this)">帖子管理</button>
+            <button class="admin-tab" onclick="switchAdminTab('reports', this)">举报列表</button>
+            <button class="admin-tab" onclick="switchAdminTab('settings', this)">站点设置</button>
+        </div>
+        <div id="adminContent"></div>
+    `;
+    
+    adminCurrentTab = 'users';
+    loadAdminContent();
+}
+
+async function loadAdminContent() {
+    const container = document.getElementById('adminContent');
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    
+    try {
+        if (adminCurrentTab === 'users') {
+            const data = await api('adminUsers');
+            if (!data.success) { container.innerHTML = renderEmptyState('😕', '加载失败', ''); return; }
+            
+            const rows = (data.users || []).map(u => `
+                <tr>
+                    <td>${u.uid}</td>
+                    <td>${escapeHtml(u.username)}</td>
+                    <td>${escapeHtml(u.email)}</td>
+                    <td>${u.role}</td>
+                    <td>${u.reg_time || ''}</td>
+                    <td class="actions">
+                        <button class="btn-edit" onclick="adminSetRole(${u.uid}, '${u.role === 'admin' ? 'user' : 'admin'}')">${u.role === 'admin' ? '降权' : '设为管理员'}</button>
+                        <button class="btn-delete" onclick="adminDeleteUser(${u.uid})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            container.innerHTML = `
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr><th>UID</th><th>昵称</th><th>邮箱</th><th>角色</th><th>注册时间</th><th>操作</th></tr></thead>
+                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">暂无用户</td></tr>'}</tbody>
+                    </table>
+                </div>
+            `;
+        } else if (adminCurrentTab === 'posts') {
+            const data = await api('adminPosts');
+            if (!data.success) { container.innerHTML = renderEmptyState('😕', '加载失败', ''); return; }
+            
+            const rows = (data.posts || []).map(p => `
+                <tr>
+                    <td>${p.id.substring(0, 20)}...</td>
+                    <td>${p.uid}</td>
+                    <td>${escapeHtml(p.title || '')}</td>
+                    <td>${p.created_at || ''}</td>
+                    <td>${p.report_count || 0}</td>
+                    <td class="actions">
+                        <button class="btn-delete" onclick="adminDeletePost('${p.id}')">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            container.innerHTML = `
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr><th>帖子ID</th><th>作者UID</th><th>标题</th><th>创建时间</th><th>举报数</th><th>操作</th></tr></thead>
+                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">暂无帖子</td></tr>'}</tbody>
+                    </table>
+                </div>
+            `;
+        } else if (adminCurrentTab === 'reports') {
+            const data = await api('adminReports');
+            if (!data.success) { container.innerHTML = renderEmptyState('😕', '加载失败', ''); return; }
+            
+            const rows = (data.reports || []).map(r => `
+                <tr>
+                    <td>${r.id.substring(0, 20)}...</td>
+                    <td>${escapeHtml(r.post_title || '')}</td>
+                    <td>${escapeHtml(r.reporter_name || '')}</td>
+                    <td>${escapeHtml(r.reason || '')}</td>
+                    <td><span style="padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;background:${r.status === 'pending' ? 'rgba(245,158,11,0.15)' : r.status === 'resolved' ? 'rgba(46,204,113,0.15)' : 'rgba(107,114,128,0.15)'};color:${r.status === 'pending' ? 'var(--warning)' : r.status === 'resolved' ? 'var(--primary)' : 'var(--text-muted)'}">${r.status === 'pending' ? '待处理' : r.status === 'resolved' ? '已处理' : '已驳回'}</span></td>
+                    <td>${r.created_at || ''}</td>
+                    <td class="actions">
+                        <button class="btn-edit" onclick="adminViewReportedPost('${r.postId}')">查看</button>
+                        <button class="btn-delete" onclick="adminDeleteReportedPost('${r.postId}', '${r.id}')">删除帖子</button>
+                        ${r.status === 'pending' ? `
+                            <button class="btn-edit" onclick="adminResolveReport('${r.id}')">处理</button>
+                            <button class="btn-delete" onclick="adminDismissReport('${r.id}')">驳回</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+            
+            container.innerHTML = `
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr><th>举报ID</th><th>帖子</th><th>举报人</th><th>原因</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+                        <tbody>${rows || '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">暂无举报</td></tr>'}</tbody>
+                    </table>
+                </div>
+            `;
+        } else if (adminCurrentTab === 'settings') {
+            container.innerHTML = `
+                <div class="glass-card" style="padding:24px;">
+                    <div class="form-group">
+                        <label>站点标题</label>
+                        <input type="text" class="glass-input" id="adminSiteTitle" placeholder="站点标题">
+                    </div>
+                    <div class="form-group">
+                        <label>站点图标 URL</label>
+                        <input type="text" class="glass-input" id="adminSiteIconUrl" placeholder="https://example.com/icon.png">
+                    </div>
+                    <div class="form-group">
+                        <label>或上传图标</label>
+                        <input type="file" class="glass-input" id="adminSiteIconFile" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>主题模式</label>
+                        <select class="glass-input" id="adminThemeMode">
+                            <option value="auto">自动（跟随浏览器）</option>
+                            <option value="light">浅色模式</option>
+                            <option value="dark">深色模式</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:12px;">
+                        <input type="checkbox" id="adminAllowGuestBrowse" style="width:18px;height:18px;">
+                        <label for="adminAllowGuestBrowse" style="margin:0;">允许游客浏览帖子</label>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:12px;">
+                        <input type="checkbox" id="adminAllowRegister" style="width:18px;height:18px;">
+                        <label for="adminAllowRegister" style="margin:0;">允许新用户注册</label>
+                    </div>
+                    <button class="glass-btn" onclick="saveAdminSettings()">保存设置</button>
+                </div>
+            `;
+            
+            const settings = await api('getSettings');
+            if (settings.success) {
+                document.getElementById('adminSiteTitle').value = settings.site_title || '';
+                document.getElementById('adminSiteIconUrl').value = settings.site_icon || '';
+                document.getElementById('adminAllowGuestBrowse').checked = settings.allow_guest_browse !== false;
+                document.getElementById('adminAllowRegister').checked = settings.allow_register !== false;
+                document.getElementById('adminThemeMode').value = settings.theme_mode || 'auto';
+            }
+        }
+    } catch (e) {
+        container.innerHTML = renderEmptyState('😕', '加载失败', '');
+    }
+}
+
+function switchAdminTab(tab, btn) {
+    adminCurrentTab = tab;
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    loadAdminContent();
+}
+
+async function adminSetRole(uid, role) {
+    if (!confirm(`确定要将该用户设为${role === 'admin' ? '管理员' : '普通用户'}吗？`)) return;
+    const data = await api('adminUsers', { uid, action: 'setRole', role }, 'POST');
+    if (data.success) { showToast('操作成功'); loadAdminContent(); }
+    else showToast(data.message || '操作失败', 'error');
+}
+
+async function adminDeleteUser(uid) {
+    if (!confirm('确定要删除该用户吗？此操作不可撤销！')) return;
+    const data = await api('adminUsers', { uid, action: 'delete' }, 'POST');
+    if (data.success) { showToast('删除成功'); loadAdminContent(); }
+    else showToast(data.message || '删除失败', 'error');
+}
+
+async function adminDeletePost(postId) {
+    if (!confirm('确定要删除该帖子吗？')) return;
+    const data = await api('adminPosts', { postId, action: 'delete' }, 'POST');
+    if (data.success) { showToast('删除成功'); loadAdminContent(); }
+    else showToast(data.message || '删除失败', 'error');
+}
+
+async function adminResolveReport(reportId) {
+    const data = await api('adminReports', { reportId, action: 'resolve' }, 'POST');
+    if (data.success) { showToast('已处理'); loadAdminContent(); }
+    else showToast(data.message || '操作失败', 'error');
+}
+
+async function adminDismissReport(reportId) {
+    const data = await api('adminReports', { reportId, action: 'dismiss' }, 'POST');
+    if (data.success) { showToast('已驳回'); loadAdminContent(); }
+    else showToast(data.message || '操作失败', 'error');
+}
+
+function adminViewReportedPost(postId) {
+    navigateTo('post/' + postId);
+}
+
+async function adminDeleteReportedPost(postId, reportId) {
+    if (!confirm('确定要删除该帖子吗？此操作不可撤销！')) return;
+    const data = await api('adminPosts', { postId, action: 'delete' }, 'POST');
+    if (data.success) {
+        await api('adminReports', { reportId, action: 'resolve' }, 'POST');
+        showToast('帖子已删除');
+        loadAdminContent();
+    } else {
+        showToast(data.message || '删除失败', 'error');
+    }
+}
+
+async function saveAdminSettings() {
+    const formData = new FormData();
+    formData.append('site_title', document.getElementById('adminSiteTitle').value);
+    const url = document.getElementById('adminSiteIconUrl').value;
+    if (url) formData.append('site_icon_url', url);
+    const file = document.getElementById('adminSiteIconFile').files[0];
+    if (file) formData.append('site_icon', file);
+    formData.append('allow_guest_browse', document.getElementById('adminAllowGuestBrowse').checked ? 'true' : 'false');
+    formData.append('allow_register', document.getElementById('adminAllowRegister').checked ? 'true' : 'false');
+    formData.append('theme_mode', document.getElementById('adminThemeMode').value);
+    
+    const data = await api('adminSettings', formData, 'POST');
+    if (data.success) {
+        showToast('保存成功');
+        loadSettings();
+        applyTheme();
+    } else {
+        showToast(data.message || '保存失败', 'error');
+    }
+}
+
+async function handleReact(postId, type, btn) {
+    if (!currentUser) { showAuthModal(); return; }
+    
+    try {
+        const data = await api('react', { postId, type }, 'POST');
+        if (data.success) {
+            const card = btn.closest('.post-actions');
+            const likeBtn = card.querySelector('.action-btn:first-child');
+            const dislikeBtn = card.querySelector('.action-btn:nth-child(2)');
+            
+            likeBtn.querySelector('.count').textContent = data.likes;
+            dislikeBtn.querySelector('.count').textContent = data.dislikes;
+            
+            likeBtn.classList.toggle('active', data.user_reaction === 'like');
+            likeBtn.classList.toggle('like', data.user_reaction === 'like');
+            dislikeBtn.classList.toggle('active', data.user_reaction === 'dislike');
+            dislikeBtn.classList.toggle('dislike', data.user_reaction === 'dislike');
+        }
+    } catch (e) {}
+}
+
+async function handleFavorite(postId, btn) {
+    if (!currentUser) { showAuthModal(); return; }
+    
+    try {
+        const data = await api('favorite', { postId }, 'POST');
+        if (data.success) {
+            btn.querySelector('.count').textContent = data.favorites;
+            btn.classList.toggle('active', data.is_favorite);
+            btn.classList.toggle('favorite', data.is_favorite);
+        }
+    } catch (e) {}
+}
+
+async function handleFollow(uid, btn) {
+    if (!currentUser) { showAuthModal(); return; }
+    
+    try {
+        const data = await api('follow', { followeeUid: uid }, 'POST');
+        if (data.success) {
+            btn.textContent = data.is_following ? '已关注' : '+ 关注';
+            btn.classList.toggle('secondary', data.is_following);
+            showToast(data.is_following ? '关注成功' : '已取消关注');
+        }
+    } catch (e) {}
+}
+
+async function handleAvatarUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const data = await api('updateAvatar', formData, 'POST');
+    if (data.success) {
+        showToast('头像更新成功');
+        checkLogin().then(() => navigateTo('profile'));
+    } else {
+        showToast(data.message || '上传失败', 'error');
+    }
+}
+
+async function handleLogout() {
+    await api('logout', {}, 'POST');
+    currentUser = null;
+    updateNavUser();
+    showToast('已退出登录');
+    navigateTo('explore');
+}
+
+function handleMediaSelect(e) {
+    const files = Array.from(e.target.files);
+    const preview = document.getElementById('mediaPreview');
+    const remaining = MAX_MEDIA_PER_POST - selectedMediaFiles.length;
+    const toAdd = files.slice(0, remaining);
+    
+    toAdd.forEach(file => {
+        selectedMediaFiles.push(file);
+        const url = URL.createObjectURL(file);
+        const isVideo = file.type.startsWith('video');
+        const div = document.createElement('div');
+        div.className = 'media-preview-item';
+        div.innerHTML = `
+            ${isVideo ? `<video src="${url}"></video>` : `<img src="${url}" alt="">`}
+            <button class="remove-media" onclick="removeMedia(this, '${url}')">×</button>
+        `;
+        preview.insertBefore(div, preview.lastElementChild);
+    });
+    
+    if (selectedMediaFiles.length >= MAX_MEDIA_PER_POST) {
+        preview.lastElementChild.style.display = 'none';
+    }
+}
+
+function removeMedia(btn, url) {
+    const idx = selectedMediaFiles.findIndex(f => URL.createObjectURL(f) === url);
+    if (idx > -1) selectedMediaFiles.splice(idx, 1);
+    btn.parentElement.remove();
+    document.getElementById('mediaPreview').lastElementChild.style.display = 'flex';
+}
+
+async function submitPost() {
+    const title = document.getElementById('postTitle').value.trim();
+    const content = document.getElementById('postContent').value.trim();
+    
+    if (!title) { showToast('请输入标题', 'warning'); return; }
+    
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
+    selectedMediaFiles.forEach(f => formData.append('media[]', f));
+    
+    const data = await api('createPost', formData, 'POST');
+    if (data.success) {
+        showToast(data.checkin?.checked ? '发布成功！今日已打卡 ✅' : '发布成功！');
+        closeCreatePostModal();
+        navigateTo('explore');
+    } else {
+        showToast(data.message || '发布失败', 'error');
+    }
+}
+
+function showReportModal(postId) {
+    if (!currentUser) { showAuthModal(); return; }
+    currentReportPostId = postId;
+    document.getElementById('reportModal').classList.add('active');
+}
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.remove('active');
+    document.getElementById('reportReason').value = '';
+    currentReportPostId = '';
+}
+
+async function submitReport() {
+    const reason = document.getElementById('reportReason').value.trim();
+    if (!reason) { showToast('请填写举报原因', 'warning'); return; }
+    
+    const data = await api('report', { postId: currentReportPostId, reason }, 'POST');
+    if (data.success) {
+        showToast('举报已提交，我们会尽快处理');
+        closeReportModal();
+    } else {
+        showToast(data.message || '举报失败', 'error');
+    }
+}
+
+async function showEditPostModal(postId) {
+    document.getElementById('editPostId').value = postId;
+    const data = await api('getPostDetail', { postId });
+    if (data.success) {
+        document.getElementById('editPostTitle').value = data.post.title || '';
+        document.getElementById('editPostContent').value = data.post.content || '';
+        document.getElementById('editPostModal').classList.add('active');
+    } else {
+        showToast(data.message || '加载失败', 'error');
+    }
+}
+
+function closeEditPostModal() {
+    document.getElementById('editPostModal').classList.remove('active');
+    document.getElementById('editPostTitle').value = '';
+    document.getElementById('editPostContent').value = '';
+    document.getElementById('editPostId').value = '';
+}
+
+async function submitEditPost() {
+    const postId = document.getElementById('editPostId').value;
+    const title = document.getElementById('editPostTitle').value.trim();
+    const content = document.getElementById('editPostContent').value.trim();
+    
+    if (!title) { showToast('标题不能为空', 'warning'); return; }
+    
+    const data = await api('updatePost', { postId, title, content }, 'POST');
+    if (data.success) {
+        showToast('帖子已更新');
+        closeEditPostModal();
+        if (currentPage.startsWith('post/')) {
+            navigateTo(currentPage);
+        } else if (currentPage === 'profile') {
+            loadProfileContent();
+        }
+    } else {
+        showToast(data.message || '更新失败', 'error');
+    }
+}
+
+async function deleteMyPost() {
+    const postId = document.getElementById('editPostId').value;
+    if (!confirm('确定要删除这篇帖子吗？此操作不可撤销！')) return;
+    
+    const data = await api('deletePost', { postId }, 'POST');
+    if (data.success) {
+        showToast('帖子已删除');
+        closeEditPostModal();
+        navigateTo('explore');
+    } else {
+        showToast(data.message || '删除失败', 'error');
+    }
+}
+
+function toggleSearchBar() {
+    const bar = document.getElementById('searchBar');
+    isSearchBarOpen = !isSearchBarOpen;
+    bar.classList.toggle('active', isSearchBarOpen);
+    if (isSearchBarOpen) {
+        setTimeout(() => document.getElementById('searchInput').focus(), 100);
+    }
+}
+
+function doSearch() {
+    const keyword = document.getElementById('searchInput').value.trim();
+    if (!keyword) return;
+    window.location.href = '#search?q=' + encodeURIComponent(keyword);
+}
+
+function showMobileSearch() {
+    document.getElementById('mobileSearchOverlay').classList.add('active');
+    setTimeout(() => document.getElementById('mobileSearchInput').focus(), 100);
+}
+
+function closeMobileSearch() {
+    document.getElementById('mobileSearchOverlay').classList.remove('active');
+    document.getElementById('mobileSearchInput').value = '';
+}
+
+function doMobileSearch() {
+    const keyword = document.getElementById('mobileSearchInput').value.trim();
+    if (!keyword) return;
+    closeMobileSearch();
+    window.location.href = '#search?q=' + encodeURIComponent(keyword);
+}
+
+async function showAuthModal() {
+    const settings = await api('getSettings');
+    const registerTab = document.querySelector('.auth-tab:nth-child(2)');
+    const registerForm = document.getElementById('registerForm');
+    if (settings.success && !settings.allow_register) {
+        registerTab.style.display = 'none';
+        registerForm.style.display = 'none';
+    } else {
+        registerTab.style.display = '';
+        registerForm.style.display = '';
+    }
+    document.getElementById('authModal').classList.add('active');
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('active');
+}
+
+function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+    document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = await api('login', {
+        email: form.email.value,
+        password: form.password.value
+    }, 'POST');
+    
+    if (data.success) {
+        currentUser = { uid: data.uid, username: data.username, avatar: data.avatar, role: data.role };
+        updateNavUser();
+        closeAuthModal();
+        showToast('登录成功！欢迎回来');
+        navigateTo('explore');
+    } else {
+        showToast(data.message || '登录失败', 'error');
+    }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = await api('register', {
+        email: form.email.value,
+        username: form.username.value,
+        password: form.password.value
+    }, 'POST');
+    
+    if (data.success) {
+        currentUser = { uid: data.uid, username: data.username, role: data.role };
+        updateNavUser();
+        closeAuthModal();
+        showToast('注册成功！欢迎加入');
+        navigateTo('explore');
+    } else {
+        showToast(data.message || '注册失败', 'error');
+    }
+}
+
+function showCreatePostModal() {
+    if (!currentUser) { showAuthModal(); return; }
+    document.getElementById('createPostModal').classList.add('active');
+}
+
+function closeCreatePostModal() {
+    document.getElementById('createPostModal').classList.remove('active');
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postContent').value = '';
+    document.getElementById('mediaPreview').innerHTML = `
+        <div class="media-upload-btn" onclick="document.getElementById('mediaInput').click()">
+            <span class="icon">📷</span>
+            <span>添加</span>
+        </div>
+    `;
+    selectedMediaFiles = [];
+}
+
+function openImageViewer(url, type) {
+    const viewer = document.getElementById('imageViewer');
+    const img = document.getElementById('viewerImage');
+    const video = document.getElementById('viewerVideo');
+    
+    if (type === 'video') {
+        img.style.display = 'none';
+        video.style.display = 'block';
+        video.src = url;
+        video.play();
+    } else {
+        video.style.display = 'none';
+        video.pause();
+        img.style.display = 'block';
+        img.src = url;
+    }
+    
+    viewer.classList.add('active');
+}
+
+function closeImageViewer() {
+    const viewer = document.getElementById('imageViewer');
+    const video = document.getElementById('viewerVideo');
+    viewer.classList.remove('active');
+    video.pause();
+    video.src = '';
+}
+
+function showEditProfileModal() {
+    const name = prompt('请输入新昵称（2-20字符）：');
+    if (!name) return;
+    if (name.length < 2 || name.length > 20) { showToast('昵称长度2-20字符', 'warning'); return; }
+    
+    const badge = prompt('请输入徽章文字（可选）：') || '';
+    
+    api('updateProfile', { username: name, badge }, 'POST').then(data => {
+        if (data.success) {
+            showToast('资料已更新');
+            navigateTo('profile');
+        } else {
+            showToast(data.message || '更新失败', 'error');
+        }
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatTime(timeStr) {
+    if (!timeStr) return '';
+    const date = new Date(timeStr.replace(' ', 'T'));
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) return '刚刚';
+    if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+    if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+    
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+}
+
+function renderEmptyState(icon, title, desc) {
+    return `
+        <div class="empty-state">
+            <div class="icon">${icon}</div>
+            <h3>${title}</h3>
+            <p>${desc}</p>
+        </div>
+    `;
+}
+
+function renderPagination(total, page, limit, onNext, onPrev) {
+    const totalPages = Math.ceil(total / limit);
+    if (totalPages <= 1) return '';
+    
+    let html = '<div class="pagination">';
+    html += `<button ${page <= 1 ? 'disabled' : ''} onclick="onPrev()">上一页</button>`;
+    html += `<button class="active">${page} / ${totalPages}</button>`;
+    html += `<button ${page >= totalPages ? 'disabled' : ''} onclick="onNext()">下一页</button>`;
+    html += '</div>';
+    return html;
+}
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.classList.remove('active');
+        }
+    });
+});
+</script>
+</body>
+</html>
